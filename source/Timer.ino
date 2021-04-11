@@ -2,6 +2,8 @@
  * This project builds a timer using an arduino uno or nano.
  * Details on how to assemble the circuit are given in the README
  * residing alongside this source file
+ * 
+ * An extra pushbutton can be hooked from ground to the reset pin to hard reset the board.
  *
  * Created on 22nd March 2021 By Koustubh Srivastava
 */
