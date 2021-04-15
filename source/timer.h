@@ -9,7 +9,7 @@
 #ifndef __TIMER_H__
 	#define __TIMER_H__
 
-	#define TIMEINTERVAL 1000
+	#define START_TIMER_ON	(65535 - 15625)
 	struct Time {
 		uint8_t hours;
 		uint8_t minutes;
@@ -25,7 +25,6 @@
 			void showFields (LiquidCrystal_I2C);
 			void increase (uint8_t);
 			void decrease (uint8_t);
-			int countdown (LiquidCrystal_I2C);
 		private:
 			uint8_t _startStopPin;
 

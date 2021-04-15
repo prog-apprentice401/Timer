@@ -107,38 +107,6 @@ void Timer::decrease (uint8_t currentField)
 	}
 }
 
-//function: public method to countdown
-int Timer::countdown (LiquidCrystal_I2C lcd)
-{
-	if (time.hours == 0 && time.minutes == 0 && time.seconds == 0) {
-		return -1;
-	}
-
-	unsigned long timeSinceDecrease = millis ();
-	showFields (lcd);
-	
-	while (digitalRead (_startStopPin) == HIGH) {
-		if (millis () - timeSinceDecrease >= TIMEINTERVAL) {
-			if (time.seconds <= 0) {
-				if (time.minutes <= 0) {
-					if (time.hours <= 0) {
-						return 0;	//countdown successful
-					} else {
-						decreaseHours();
-					}
-				}
-				decreaseMinutes ();
-			}
-			decreaseSeconds ();
-			displayTime (lcd);
-			timeSinceDecrease = millis ();
-		}
-	}
-
-	return 1;	//indicating that the timer is still left: buzzer stays silent
-}
-
-
 //function: private method to increase seconds
 //accepts : void
 //returns : void

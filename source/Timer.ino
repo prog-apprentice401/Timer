@@ -30,11 +30,12 @@ bool isFieldHidden = false;
 uint8_t countdownStatus = 0;	//0: successfully timed | non-zero: error, or paused
 
 void alarm (uint8_t);
+int countdown (void);
 
 void setup ()
 {
-	Serial.end ();
-
+	//Serial.end ();
+	Serial.begin (9600);
 	lcd.init ();
 	lcd.clear ();
 	lcd.backlight ();
@@ -79,7 +80,7 @@ void loop ()
 	lcd.setCursor (15, 0);
 	lcd.write (0);
 
-	countdownStatus = timer.countdown (lcd);
+	countdownStatus = countdown ();
 
 	lcd.setCursor (15, 0);
 	lcd.print (" ");	//erase clock character
@@ -102,4 +103,67 @@ void alarm (uint8_t speakerPin)
 		digitalWrite (speakerPin, LOW);
 		delay (500);
 	}
+}
+
+
+//This functions should ideally be declared as a method
+//but has not been to allow for timer interrupts to be accessed
+bool isLcdUpdated = false;
+
+int countdown (void)
+{
+	if (timer.time.hours == 0 && timer.time.minutes == 0 && timer.time.seconds == 0) {
+		return -1;
+	}
+	short int countdownStatus = -1;	//0: successfull
+	TCCR1A = 0;
+
+	TCCR1B |= (1 << CS12);	//sets prescaler to 1024
+	TCCR1B &= ~(1 << CS11);
+	TCCR1B |= (1 << CS10);
+
+	TCNT1 = 0;
+	TIMSK1 |= (1 << TOIE1);
+	TCNT1 = START_TIMER_ON;
+
+	while (digitalRead (STRTSTPpin) == HIGH) {
+		if (!isLcdUpdated) {
+			timer.displayTime (lcd);
+			isLcdUpdated = true;
+		}
+		if (timer.time.hours <= 0 && timer.time.minutes <= 0 && timer.time.seconds <= 0) {
+			countdownStatus = 0;
+			break;
+		}
+	}
+	TCCR1B = 0;	//sets prescaler to 1024
+	TIMSK1 = 0;
+	TCNT1 = 0;
+	return countdownStatus;
+}
+
+ISR (TIMER1_OVF_vect)
+{
+	Serial.print (timer.time.hours);
+	Serial.print ("  ");
+	Serial.print (timer.time.minutes);
+	Serial.print ("  ");
+	Serial.println (timer.time.seconds);
+	TCNT1 = START_TIMER_ON;
+
+	if (timer.time.seconds == 0) {
+		if (timer.time.minutes == 0) {
+			if (timer.time.hours == 0) {
+				return;
+			}
+			timer.decrease (3);
+			timer.time.minutes = 59;
+		}
+		timer.decrease (2);
+		timer.time.seconds = 59;
+	}
+	
+	timer.decrease (1);
+	isLcdUpdated = false;
+	return;
 }
