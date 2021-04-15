@@ -34,8 +34,7 @@ int countdown (void);
 
 void setup ()
 {
-	//Serial.end ();
-	Serial.begin (9600);
+	Serial.end ();
 	lcd.init ();
 	lcd.clear ();
 	lcd.backlight ();
@@ -144,11 +143,6 @@ int countdown (void)
 
 ISR (TIMER1_OVF_vect)
 {
-	Serial.print (timer.time.hours);
-	Serial.print ("  ");
-	Serial.print (timer.time.minutes);
-	Serial.print ("  ");
-	Serial.println (timer.time.seconds);
 	TCNT1 = START_TIMER_ON;
 
 	if (timer.time.seconds == 0) {
