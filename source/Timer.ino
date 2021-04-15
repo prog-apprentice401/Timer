@@ -111,6 +111,7 @@ bool isLcdUpdated = false;
 
 int countdown (void)
 {
+	timer.showFields (lcd);
 	if (timer.time.hours == 0 && timer.time.minutes == 0 && timer.time.seconds == 0) {
 		return -1;
 	}
