@@ -20,11 +20,9 @@
 		public:
 			Time time;
 			Timer (uint8_t);
-			void displayTime (LiquidCrystal_I2C lcd);
-			void hideField (uint8_t, LiquidCrystal_I2C);
-			void showFields (LiquidCrystal_I2C);
 			void increase (uint8_t);
 			void decrease (uint8_t);
+			int countdown (LiquidCrystal_I2C);
 		private:
 			uint8_t _startStopPin;
 

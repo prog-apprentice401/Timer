@@ -22,52 +22,7 @@ Timer::Timer (uint8_t startStopPin)
 	time.seconds = 0;
 }
 
-//function: prints current time to the LCD
-//accepts : Time struct [Defined in timer.h]
-//returns : void
-void Timer::displayTime (LiquidCrystal_I2C lcd)
-{
-	lcd.setCursor (1, 0);
-	lcd.print ((time.hours < 10) ? "0" : "");
-	lcd.print (time.hours);
-	lcd.setCursor (4, 0);
-	lcd.print ((time.minutes < 10) ? ": 0" : ": ");
-	lcd.print (time.minutes);
-	lcd.setCursor (9, 0);
-	lcd.print ((time.seconds < 10) ? ": 0" : ": ");
-	lcd.print (time.seconds);
-}
-
-//function: hides the currentField, counter-part of showFields ()
-//accepts : void, uses global variable currentField
-//returns : void
-void Timer::hideField (uint8_t currentField, LiquidCrystal_I2C lcd)
-{
-	switch (currentField) {	//set cursor to starting of current field
-	case 1 :
-		lcd.setCursor (11, 1);
-		break;
-	case 2 :
-		lcd.setCursor (6, 1);
-		break;
-	case 3 :
-		lcd.setCursor (1, 1);
-		break;
-	default:
-		return;
-	}
-	lcd.print ("  ");	//erase current field
-}
-
-//function: shows all field, counter-part to hideField ()
-//accepts : void
-//returns : void
-void Timer::showFields (LiquidCrystal_I2C lcd) {
-	lcd.setCursor (0, 1);
-	lcd.print (" Hr | Mn | Se");	//print all fields
-}
-
-//function: public method, increases tgiven time field by 1 unit
+//function: public method, increases given time field by 1 unit
 //accepts : field to increase as `Field` enum
 //returns : void
 void Timer::increase (uint8_t currentField)
@@ -106,6 +61,47 @@ void Timer::decrease (uint8_t currentField)
 			return;
 	}
 }
+
+//function: public method to countdown the set timer
+int Timer::countdown (LiquidCrystal_I2C lcd)
+{
+	if (time.hours == 0 && time.minutes == 0 && time.seconds == 0) {
+		return -1;
+	}
+	short int countdownStatus = -1;	//0: successfull
+	TCCR1A = 0;	//resets all timer 1 control bits
+
+	TCCR1B |= (1 << CS12);	//sets prescaler to 1024
+	TCCR1B &= ~(1 << CS11);
+	TCCR1B |= (1 << CS10);
+
+	TCNT1 = 0;	//sets timer1 to 0
+	TIMSK1 |= (1 << TOIE1);	//enables Timer Overflow Interrupt
+	TCNT1 = START_TIMER_ON;
+
+	while (digitalRead (_startStopPin) != LOW) {
+		lcd.setCursor (1, 0);	//prints time to lcd
+		lcd.print ((time.hours < 10) ? "0" : "");
+		lcd.print (time.hours);
+		lcd.setCursor (6, 0);
+		lcd.print ((time.minutes < 10) ? "0" : "");
+		lcd.print (time.minutes);
+		lcd.setCursor (11, 0);
+		lcd.print ((time.seconds < 10) ? "0" : "");
+		lcd.print (time.seconds);
+
+		if (time.hours <= 0 && time.minutes <= 0 && time.seconds <= 0) {
+			countdownStatus = 0;
+			break;
+		}
+	}
+	TCCR1B = 0;	//sets prescaler to 1024
+	TIMSK1 = 0;
+	TCNT1 = 0;
+	return countdownStatus;
+}
+
+
 
 //function: private method to increase seconds
 //accepts : void
