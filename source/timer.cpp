@@ -6,6 +6,7 @@
 
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#include "utils.h"
 #include "timer.h"
 
 //fucntion: constructor, assigns correct pin numbers to private variables
@@ -69,37 +70,30 @@ int Timer::countdown (LiquidCrystal_I2C lcd)
 		return -1;
 	}
 	short int countdownStatus = -1;	//0: successfull
-	TCCR1A = 0;	//resets all timer 1 control bits
 
 	TCCR1B |= (1 << CS12);	//sets prescaler to 1024
 	TCCR1B &= ~(1 << CS11);
 	TCCR1B |= (1 << CS10);
 
 	TCNT1 = 0;	//sets timer1 to 0
+	TCCR1A = 0;	//resets all timer 1 control bits
 	TIMSK1 |= (1 << TOIE1);	//enables Timer Overflow Interrupt
 	TCNT1 = START_TIMER_ON;
-
+	
 	while (digitalRead (_startStopPin) != LOW) {
-		lcd.setCursor (1, 0);	//prints time to lcd
-		lcd.print ((time.hours < 10) ? "0" : "");
-		lcd.print (time.hours);
-		lcd.setCursor (6, 0);
-		lcd.print ((time.minutes < 10) ? "0" : "");
-		lcd.print (time.minutes);
-		lcd.setCursor (11, 0);
-		lcd.print ((time.seconds < 10) ? "0" : "");
-		lcd.print (time.seconds);
-
+		displayTime (time, lcd);
 		if (time.hours <= 0 && time.minutes <= 0 && time.seconds <= 0) {
 			countdownStatus = 0;
 			break;
 		}
 	}
-	TCCR1B = 0;	//sets prescaler to 1024
+	TCCR1B = 0;
 	TIMSK1 = 0;
 	TCNT1 = 0;
+	
 	return countdownStatus;
 }
+
 
 
 

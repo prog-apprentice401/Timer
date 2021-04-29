@@ -14,11 +14,12 @@
 #include "timer.h"
 #include "chars.h"
 
+#define ENABLE_ALARMpin	7
 #define SPKRpin		6
-#define STRTSTPpin	5
+#define STRTSTPpin	4
 #define NEXTpin		2
 #define PLUS1pin	3
-#define MINUS1pin	4
+#define MINUS1pin	5
 #define BLINKINTERVAL	500	//time to wait after each blink of field heading
 
 LiquidCrystal_I2C lcd (0x27, 16, 2);
@@ -47,6 +48,7 @@ void setup ()
 	pinMode (NEXTpin, INPUT_PULLUP);
 	pinMode (STRTSTPpin, INPUT_PULLUP);
 	pinMode (SPKRpin, OUTPUT);
+	pinMode (ENABLE_ALARMpin, INPUT_PULLUP);
 }
 
 void loop ()
@@ -82,7 +84,7 @@ void loop ()
 	lcd.print (" ");	//erase clock character
 	delay (200);
 
-	if (countdownStatus == 0) {
+	if (countdownStatus == 0 && digitalRead (ENABLE_ALARMpin) == LOW) {
 		alarm (SPKRpin);
 	}
 }
