@@ -8,4 +8,5 @@
 	void hideField (uint8_t, LiquidCrystal_I2C);
 
 	void displayTime (Time, LiquidCrystal_I2C);
+	void resetInterruptTimer1 (void);
 #endif

@@ -14,7 +14,7 @@ ISR (TIMER1_OVF_vect)
 			timer.decrease (3);
 			timer.time.minutes = 59;
 		}
-		timer.decrease (2);
+		timer.decrease (2);	//2: second field, minutes
 		timer.time.seconds = 59;
 	}
 	timer.decrease (1);

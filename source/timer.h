@@ -16,12 +16,18 @@
 		uint8_t seconds;
 	};
 
+	typedef enum field {
+		Seconds = 1,
+		Minutes = 2,
+		Hours = 3,
+	} Field;
+
 	class Timer {
 		public:
 			Time time;
 			Timer (uint8_t);
-			void increase (uint8_t);
-			void decrease (uint8_t);
+			void increase (Field);
+			void decrease (Field);
 			int countdown (LiquidCrystal_I2C);
 		private:
 			uint8_t _startStopPin;

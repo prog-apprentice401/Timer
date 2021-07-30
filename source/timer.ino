@@ -25,7 +25,7 @@
 LiquidCrystal_I2C lcd (0x27, 16, 2);
 Timer timer (STRTSTPpin);
 
-uint8_t currentField = 1;	//1 : seconds | 2 : minutes | 3: hours
+Field currentField = Seconds;
 unsigned long timeLastBlinked;
 bool isFieldHidden = false;
 uint8_t countdownStatus = 0;	//0: successfully timed | non-zero: error, or paused
@@ -35,6 +35,7 @@ void toggleFields (bool, uint8_t);
 
 void setup ()
 {
+	resetInterruptTimer1 ();
 	Serial.end ();
 	lcd.init ();
 	lcd.clear ();
@@ -62,27 +63,27 @@ void loop ()
 		}
 
 		if (digitalRead (NEXTpin) == LOW) {
-			delay (200);
-			currentField = (currentField < 3) ? currentField + 1 : 1;
+			delay (200);	//to avoid bounces
+			currentField = (currentField < Hours) ? currentField + 1 : Seconds;
 		} else if (digitalRead (PLUS1pin) == LOW) {
 			delay (200);	//to avoid bounces
 			timer.increase (currentField);
 		} else if (digitalRead (MINUS1pin) == LOW) {
-			delay (200);
+			delay (200);	//to avoid bounces
 			timer.decrease (currentField);
 		}
 	}
-	delay (200);
+	delay (100);
 	lcd.setCursor (15, 0);
-	lcd.write (0);
+	lcd.write (0);  //print clock character
 
 	showFields (lcd);
 
 	countdownStatus = timer.countdown (lcd);
+	delay (200);	//to debounce the PAUSE click
 
 	lcd.setCursor (15, 0);
 	lcd.print (" ");	//erase clock character
-	delay (200);
 
 	if (countdownStatus == 0 && digitalRead (ENABLE_ALARMpin) == LOW) {
 		alarm (SPKRpin);

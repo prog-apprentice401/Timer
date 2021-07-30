@@ -38,3 +38,10 @@ void displayTime (Time time, LiquidCrystal_I2C lcd)
 	lcd.print ((time.seconds < 10) ? "0" : "");
 	lcd.print (time.seconds);
 }
+
+void resetInterruptTimer1 (void)
+{
+	TCCR1B = 0;
+	TIMSK1 = 0;
+	TCNT1 = 0;
+}

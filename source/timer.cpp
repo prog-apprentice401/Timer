@@ -26,16 +26,16 @@ Timer::Timer (uint8_t startStopPin)
 //function: public method, increases given time field by 1 unit
 //accepts : field to increase as `Field` enum
 //returns : void
-void Timer::increase (uint8_t currentField)
+void Timer::increase (Field currentField)
 {
 	switch (currentField) {
-		case 1 :
+		case Seconds :
 			increaseSeconds ();
 			break;
-		case 2 :
+		case Minutes :
 			increaseMinutes ();
 			break;
-		case 3 :
+		case Hours :
 			increaseHours ();
 			break;
 		default :
@@ -46,7 +46,7 @@ void Timer::increase (uint8_t currentField)
 //function: public method to decrease given time field by 1
 //accepts : field to increase as `Field` enum
 //returns : void
-void Timer::decrease (uint8_t currentField)
+void Timer::decrease (Field currentField)
 {
 	switch (currentField) {
 		case 1 :
@@ -81,7 +81,7 @@ int Timer::countdown (LiquidCrystal_I2C lcd)
 	TCNT1 = START_TIMER_ON;
 	
 	while (digitalRead (_startStopPin) != LOW) {
-		displayTime (time, lcd);
+		displayTime (time, lcd);	//from <utils>
 		if (time.hours <= 0 && time.minutes <= 0 && time.seconds <= 0) {
 			countdownStatus = 0;
 			break;
@@ -91,6 +91,9 @@ int Timer::countdown (LiquidCrystal_I2C lcd)
 	TIMSK1 = 0;
 	TCNT1 = 0;
 	
+	//if the ISR was called right after time was displayed
+	//and before the check for zero time, the wrong time is displayed
+	displayTime (time, lcd);
 	return countdownStatus;
 }
 
@@ -136,7 +139,7 @@ void Timer::increaseHours (void)
 //function: private method to decrease seconds
 //accepts : void
 //returns : void
-void Timer::decreaseSeconds ()
+void Timer::decreaseSeconds (void)
 {
 	if (time.seconds <= 0) {
 		time.seconds = 59;
@@ -148,7 +151,7 @@ void Timer::decreaseSeconds ()
 //function: private method to decrease seconds
 //accepts : void
 //returns : void
-void Timer::decreaseMinutes ()
+void Timer::decreaseMinutes (void)
 {
 	if (time.minutes <= 0) {
 		time.minutes = 59;
@@ -160,7 +163,7 @@ void Timer::decreaseMinutes ()
 //function: private method to decrease hours
 //accepts : void
 //returns : void
-void Timer::decreaseHours ()
+void Timer::decreaseHours (void)
 {
 	if (time.hours <= 0) {
 		time.hours = 99;
