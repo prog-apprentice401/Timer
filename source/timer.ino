@@ -73,7 +73,7 @@ void loop ()
 			timer.decrease (currentField);
 		}
 	}
-	delay (100);
+	delay (200);
 	lcd.setCursor (15, 0);
 	lcd.write (0);  //print clock character
 
