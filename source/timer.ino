@@ -80,7 +80,6 @@ void loop ()
 	showFields (lcd);
 
 	countdownStatus = timer.countdown (lcd);
-	delay (200);	//to debounce the PAUSE click
 
 	lcd.setCursor (15, 0);
 	lcd.print (" ");	//erase clock character
@@ -88,6 +87,7 @@ void loop ()
 	if (countdownStatus == 0 && digitalRead (ENABLE_ALARMpin) == LOW) {
 		alarm (SPKRpin);
 	}
+  delay (200);  //to debounce the PAUSE click
 }
 
 void toggleFields (bool isFieldHidden, uint8_t currentField)
